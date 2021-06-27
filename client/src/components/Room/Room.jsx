@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Grid } from "@material-ui/core";
+import { Grid, Paper, CardContent, Card, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
@@ -23,9 +24,28 @@ const Button = styled.button`
 `;
 
 const StyledVideo = styled.video`
-  height: 40%;
-  width: 50%;
+  margin: auto;
+  height: 35%;
+  width: 35%;
 `;
+
+const useStyles = makeStyles({
+  root: {
+    width: "100%",
+    height: "100%",
+  },
+  myCard: {
+    float: "right",
+    // marginTop: "100%",
+    width: "20%",
+    height: "18%",
+    borderRadius: "10px",
+  },
+  userCard: {
+    width: "50%",
+    height: "35%",
+  },
+});
 
 const Video = (props) => {
   const ref = useRef();
@@ -45,15 +65,15 @@ const videoConstraints = {
 };
 
 const Room = ({ room, name, setName, setRoom }) => {
-  // const [name, setName] = useState("");
-  // const [room, setRoom] = useState("");
-  // const { name, room, setName, setRoom } = props;
+  const classes = useStyles();
+
   const ENDPOINT = "http://localhost:5000";
   const [peers, setPeers] = useState([]);
   const socketRef = useRef();
   const userVideo = useRef();
   const peersRef = useRef([]);
   const roomID = room;
+  // const userName = name;
 
   useEffect(() => {
     socketRef.current = io.connect(ENDPOINT);
@@ -74,6 +94,7 @@ const Room = ({ room, name, setName, setRoom }) => {
             peersRef.current.push({
               peerID: userID,
               peer,
+              name,
             });
 
             peers.push({
@@ -106,6 +127,7 @@ const Room = ({ room, name, setName, setRoom }) => {
           peersRef.current.push({
             peerID: payload.callerID,
             peer,
+            name,
           });
 
           const peerObj = {
@@ -161,27 +183,43 @@ const Room = ({ room, name, setName, setRoom }) => {
   }
 
   return (
-    <div>
-      <h1>Room: {room}</h1>
-      <Container>
-        <StyledVideo muted ref={userVideo} autoPlay playsInline />
-        {peers.map((peer) => {
-          return <Video key={peer.peerID} peer={peer.peer} />;
-        })}
-      </Container>
+    <div className={classes.root}>
+      <Card className={classes.myCard}>
+        <CardContent>
+          <video
+            height="100%"
+            width="100%"
+            muted
+            ref={userVideo}
+            autoPlay
+            playsInline
+          />
+        </CardContent>
+      </Card>
+      {peersRef.current.map((peer) => {
+        return (
+          <div>
+            <Video key={peer.peerID} peer={peer.peer} />
+            <Typography>{name}</Typography>
+          </div>
+        );
+      })}
     </div>
   );
 };
 // peersRef.current
 export default Room;
-// {/* <Grid>
-//   {stream && (
-//     <Grid item md={6}>
-//       {peers.map((peer, index) => {
-//         // console.log(index, peer);
-//         // return <Video key={index} peer={peer} />;
-//         <video playsInline muted ref={userVideo} autoPlay />;
-//       })}
-//     </Grid>
-//   )}
-// </Grid> */}
+{
+  /* <Container>
+<Paper elevation={3}>
+  <StyledVideo muted ref={userVideo} autoPlay playsInline />
+  {peers.map((peer) => {
+    return (
+      <div>
+        <Video key={peer.peerID} peer={peer.peer} />
+      </div>
+    );
+  })}
+</Paper>
+</Container> */
+}
