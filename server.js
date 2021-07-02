@@ -31,13 +31,15 @@ const users = {};
 
 const socketToRoom = {};
 
+const socketToName = {};
+
 io.on("connection", (socket) => {
   console.log("User Entered");
 
-  socket.on("join room", (roomID) => {
+  socket.on("join room", ({ roomID, userName }) => {
     if (users[roomID]) {
       const length = users[roomID].length;
-      if (length === 4) {
+      if (length === 5) {
         socket.emit("room full");
         return;
       }
@@ -47,17 +49,25 @@ io.on("connection", (socket) => {
     }
 
     socketToRoom[socket.id] = roomID;
+    socketToName[socket.id] = userName;
+
     const usersInThisRoom = users[roomID].filter((id) => id !== socket.id);
 
-    console.log(users);
-
-    socket.emit("all users", usersInThisRoom);
+    console.log(`socketToName on Join :`, socketToName);
+    socket.emit("all users", { users: usersInThisRoom, socketToName });
   });
-
+  socket.on("video change", ({ roomID, userName }) => {
+    socketToRoom[socket.id] = roomID;
+    const usersInThisRoom = users[roomID].filter((id) => id !== socket.id);
+    socket.emit("all users", { users: usersInThisRoom, socketToName });
+  });
   socket.on("sending signal", (payload) => {
     io.to(payload.userToSignal).emit("user joined", {
-      signal: payload.signal,
-      callerID: payload.callerID,
+      payload: {
+        signal: payload.signal,
+        callerID: payload.callerID,
+      },
+      socketToName,
     });
   });
 
@@ -70,14 +80,20 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User Left");
-    console.log(socket.id);
+
     const roomID = socketToRoom[socket.id];
+    delete socketToName[socket.id];
+
     let room = users[roomID];
+
     if (room) {
       room = room.filter((id) => id !== socket.id);
       users[roomID] = room;
     }
+
     socket.broadcast.emit("user left", socket.id);
+
+    console.log(`socketToName on Left :`, socketToName);
   });
 });
 
