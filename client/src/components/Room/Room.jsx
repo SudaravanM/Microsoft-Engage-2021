@@ -323,7 +323,7 @@ const Room = ({ room, name, setName, setRoom }) => {
               </IconButton>
             ) : (
               <IconButton className={classes.buttons} disabled>
-                <PresentToAllIcon fontSize="large" style={{ color: "green" }} />
+                <PresentToAllIcon fontSize="large" />
               </IconButton>
             )}
           </CardActions>
