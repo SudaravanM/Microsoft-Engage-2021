@@ -12,11 +12,12 @@ import MicOffIcon from "@material-ui/icons/MicOff";
 import VideocamIcon from "@material-ui/icons/Videocam";
 import VideocamOffIcon from "@material-ui/icons/VideocamOff";
 import CallEndIcon from "@material-ui/icons/CallEnd";
+import PresentToAllIcon from "@material-ui/icons/PresentToAll";
 import { useHistory, Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import styled from "styled-components";
+import styled, { isStyledComponent } from "styled-components";
 import { CallEnd } from "@material-ui/icons";
 
 const Container = styled.div`
@@ -63,8 +64,7 @@ const useStyles = makeStyles(() => ({
     display: "inline-block",
   },
   buttons: {
-    left: "20%",
-    margin: "5px",
+    left: "13%",
   },
   myName: {
     textAlign: "center",
@@ -81,7 +81,7 @@ const Video = (props) => {
     });
   }, []);
 
-  return <StyledVideo playsInline autoPlay ref={ref} />;
+  return <StyledVideo controls playsInline autoPlay ref={ref} />;
 };
 
 const videoConstraints = {
@@ -94,12 +94,15 @@ const Room = ({ room, name, setName, setRoom }) => {
 
   const ENDPOINT = "http://localhost:5000";
   const [peers, setPeers] = useState([]);
-  const [videoOn, setVideoOn] = useState(true);
-  const [MicOn, setMicOn] = useState(true);
+  const [IsVideoOn, setIsVideoOn] = useState(true);
+  const [IsMicOn, setIsMicOn] = useState(true);
+  const [IsScreenSharingOn, setIsScreenSharingOn] = useState(false);
+  const [NameMap, setNameMap] = useState({});
   const socketRef = useRef();
   const userVideo = useRef();
+  const userStream = useRef();
   const peersRef = useRef([]);
-  const [NameMap, setNameMap] = useState({});
+  // const senders = useRef([]);
   const history = useHistory();
   const roomID = room;
   const userName = name;
@@ -109,8 +112,8 @@ const Room = ({ room, name, setName, setRoom }) => {
     navigator.mediaDevices
       .getUserMedia({ video: videoConstraints, audio: true })
       .then((stream) => {
-        // setStream(stream);
         userVideo.current.srcObject = stream;
+        userStream.current = stream;
         // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         socketRef.current.emit("join room", { roomID, userName });
         // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -126,6 +129,16 @@ const Room = ({ room, name, setName, setRoom }) => {
               peerID: userID,
               peer,
             });
+
+            // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+            // userStream.current.getTracks().forEach((track) => {
+            //   senders.current.push(
+            //   peer.streams[0].addTrack(track, userStream.current)
+            //   );
+            //   console.log(peer.streams);
+            //   console.log(peer.streams[0]);
+            // });
+            // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
             peers.push({
               peerID: userID,
@@ -213,20 +226,39 @@ const Room = ({ room, name, setName, setRoom }) => {
     return peer;
   }
 
-  function updatePeer(incomingSignal, callerID, stream) {
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      stream,
+  function shareScreen() {
+    navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
+      setIsScreenSharingOn(!IsScreenSharingOn);
+      const screenTrack = stream.getTracks()[0];
+      if (!IsScreenSharingOn) {
+        peersRef.current.forEach(({ peer }) => {
+          peer.replaceTrack(
+            userVideo.current.srcObject.getVideoTracks()[0],
+            screenTrack,
+            userStream.current
+          );
+        });
+      } else {
+        // const screenTrack = stream.getTracks()[0];
+        peersRef.current.forEach(({ peer }) => {
+          peer.replaceTrack(
+            screenTrack,
+            userVideo.current.srcObject.getVideoTracks()[0],
+            userStream.current
+          );
+        });
+      }
+      screenTrack.onended = function () {
+        // const screenTrack = stream.getTracks()[0];
+        peersRef.current.forEach(({ peer }) => {
+          peer.replaceTrack(
+            screenTrack,
+            userVideo.current.srcObject.getVideoTracks()[0],
+            userStream.current
+          );
+        });
+      };
     });
-
-    peer.on("signal", (signal) => {
-      socketRef.current.emit("returning signal", { signal, callerID });
-    });
-
-    // peer.signal(incomingSignal);
-
-    return peer;
   }
 
   return (
@@ -253,10 +285,10 @@ const Room = ({ room, name, setName, setRoom }) => {
               onClick={() => {
                 userVideo.current.srcObject.getAudioTracks()[0].enabled =
                   !userVideo.current.srcObject.getAudioTracks()[0].enabled;
-                setMicOn(!MicOn);
+                setIsMicOn(!IsMicOn);
               }}
             >
-              {MicOn ? (
+              {IsMicOn ? (
                 <MicIcon fontSize="large" style={{ color: "green" }} />
               ) : (
                 <MicOffIcon fontSize="large" style={{ color: "red" }} />
@@ -276,15 +308,24 @@ const Room = ({ room, name, setName, setRoom }) => {
               onClick={() => {
                 userVideo.current.srcObject.getVideoTracks()[0].enabled =
                   !userVideo.current.srcObject.getVideoTracks()[0].enabled;
-                setVideoOn(!videoOn);
+                setIsVideoOn(!IsVideoOn);
               }}
             >
-              {videoOn ? (
+              {IsVideoOn ? (
                 <VideocamIcon fontSize="large" style={{ color: "green" }} />
               ) : (
                 <VideocamOffIcon fontSize="large" style={{ color: "red" }} />
               )}
             </IconButton>
+            {!IsScreenSharingOn ? (
+              <IconButton className={classes.buttons} onClick={shareScreen}>
+                <PresentToAllIcon fontSize="large" style={{ color: "red" }} />
+              </IconButton>
+            ) : (
+              <IconButton className={classes.buttons} disabled>
+                <PresentToAllIcon fontSize="large" style={{ color: "green" }} />
+              </IconButton>
+            )}
           </CardActions>
         </Card>
       </div>
