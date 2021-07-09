@@ -19,6 +19,7 @@ import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled, { isStyledComponent } from "styled-components";
 import { CallEnd } from "@material-ui/icons";
+import Chat from "../Chat/Chat";
 
 const Container = styled.div`
   padding: 20px;
@@ -70,6 +71,10 @@ const useStyles = makeStyles(() => ({
     textAlign: "center",
     fontSize: "25px",
   },
+  video_wrapper: {
+    height: "100%",
+    display: "inline-flex",
+  },
 }));
 
 const Video = (props) => {
@@ -93,6 +98,7 @@ const Room = ({ room, name, setName, setRoom }) => {
   const classes = useStyles();
 
   const ENDPOINT = "http://localhost:5000";
+  // const ENDPOINT = "https://chat-app-sudhirmts.herokuapp.com/";
   const [peers, setPeers] = useState([]);
   const [IsVideoOn, setIsVideoOn] = useState(true);
   const [IsMicOn, setIsMicOn] = useState(true);
@@ -228,7 +234,7 @@ const Room = ({ room, name, setName, setRoom }) => {
 
   function shareScreen() {
     navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
-      setIsScreenSharingOn(!IsScreenSharingOn);
+      setIsScreenSharingOn(true);
       const screenTrack = stream.getTracks()[0];
       if (!IsScreenSharingOn) {
         peersRef.current.forEach(({ peer }) => {
@@ -248,8 +254,7 @@ const Room = ({ room, name, setName, setRoom }) => {
           );
         });
       }
-      screenTrack.onended = function () {
-        // const screenTrack = stream.getTracks()[0];
+      screenTrack.onended = () => {
         peersRef.current.forEach(({ peer }) => {
           peer.replaceTrack(
             screenTrack,
@@ -257,6 +262,8 @@ const Room = ({ room, name, setName, setRoom }) => {
             userStream.current
           );
         });
+        console.log("Presentation Ended");
+        setIsScreenSharingOn(false);
       };
     });
   }
@@ -329,9 +336,12 @@ const Room = ({ room, name, setName, setRoom }) => {
           </CardActions>
         </Card>
       </div>
-      {peersRef.current.map((peer) => {
-        return <Video key={peer.peerID} peer={peer.peer} />;
-      })}
+      <Chat />
+      <div>
+        {peersRef.current.map((peer) => {
+          return <Video key={peer.peerID} peer={peer.peer} />;
+        })}
+      </div>
     </div>
   );
 };

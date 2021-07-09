@@ -1,0 +1,32 @@
+.Grid {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 25%;
+  height: 55%;
+  border-radius: 10px;
+}
+.chatTitleText {
+  font-weight: 800;
+  text-align: center;
+  color: blanchedalmond;
+  text-transform: capitalize;
+}
+.chatTitle {
+  position: relative;
+  height: 10%;
+  background-color: #3f51b5;
+}
+.chatBox {
+  height: 80%;
+  background-color: #fce4ec;
+}
+
+.chatBottom {
+  position: absolute;
+  height: 10%;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  background-color: red;
+}

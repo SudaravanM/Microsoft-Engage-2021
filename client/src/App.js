@@ -1,27 +1,30 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import "./App.css";
+
 import Login from "./components/Login/Login";
 import Room from "./components/Room/Room";
+import ChatRoom from "./components/ChatRoom/ChatRoom";
 
 function App() {
   const [room, setRoom] = useState("");
   const [name, setName] = useState("");
 
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          <Login room={room} name={name} setRoom={setRoom} setName={setName} />
-        </Route>
-        {/* <Route path="/room">
-          <Room room={room} name={name} setRoom={setRoom} setName={setName} />
-        </Route> */}
-        <Route path="/room/:roomName">
-          <Room room={room} name={name} setRoom={setRoom} setName={setName} />
-        </Route>
-      </Switch>
-    </Router>
+    <div style={{ fontFamily: "Avenir" }}>
+      <Router>
+        <AuthProvider>
+          <Switch>
+            <Route exact path="/" component={Login}></Route>
+            <Route path="/chats" component={ChatRoom}></Route>
+            {/* <Route path="/room/:roomName">
+            <Room room={room} name={name} setRoom={setRoom} setName={setName} />
+          </Route> */}
+          </Switch>
+        </AuthProvider>
+      </Router>
+    </div>
   );
 }
 
