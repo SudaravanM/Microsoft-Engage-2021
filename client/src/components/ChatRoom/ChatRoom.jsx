@@ -1,13 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { ChatEngine } from "react-chat-engine";
-import ChatFeed from "../ChatFeed/ChatFeed";
+import { ChatEngine, OptionsSettings } from "react-chat-engine";
+import ChatHeader from "../ChatHeader/ChatHeader";
 import { auth } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
-import { load } from "signal-exit";
 
-const ChatRoom = () => {
+const ChatRoom = ({ room, name, setName, setRoom }) => {
   const history = useHistory();
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -75,7 +74,17 @@ const ChatRoom = () => {
         projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
         userName={user.email}
         userSecret={user.uid}
-        renderChatFeed={(chatAppProps) => <ChatFeed {...chatAppProps} />}
+        renderChatHeader={(props) => (
+          <ChatHeader
+            {...props}
+            userName={user.displayName}
+            room={room}
+            name={name}
+            setRoom={setRoom}
+            setName={setName}
+          />
+        )}
+        renderOptionsSettings={(creds, chat) => <OptionsSettings />}
       />
     </div>
   );

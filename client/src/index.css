@@ -393,3 +393,64 @@
   opacity: 1;
   right: 0;
 }
+.ce-chat-title-text {
+  font-size: 24px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ce-chat-subtitle-text {
+  font-size: 12px;
+}
+
+.ce-chat-title-container {
+  box-sizing: border-box;
+  display: inline-block;
+  min-height: 1px;
+  position: relative;
+  padding: 18px 0px;
+  width: 100%;
+  flex: 0 0 100%;
+  max-width: 100%;
+  margin-left: 0%;
+  right: auto;
+  left: auto;
+  text-align: center;
+  color: #464775;
+}
+
+.ce-message-bubble {
+  color: white;
+  cursor: pointer;
+  float: right;
+  text-align: left;
+  padding: 12px;
+  font-size: 15px;
+  white-space: pre-line;
+  background-color: #f5f5f5 !important;
+  overflow-wrap: anywhere;
+  border-radius: 1.3em;
+}
+
+.ce-my-message-bubble {
+  color: white;
+  cursor: pointer;
+  float: right;
+  text-align: left;
+  padding: 12px;
+  font-size: 15px;
+  white-space: pre-line;
+  background-color: #464775 !important;
+  overflow-wrap: anywhere;
+  border-radius: 1.3em;
+}
+#ce-send-message-button {
+  cursor: pointer;
+  background-color: #464775 !important;
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 8px;
+}
+.vid-call {
+  float: right;
+  top: 0%;
+}

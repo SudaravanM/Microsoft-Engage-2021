@@ -17,10 +17,22 @@ function App() {
         <AuthProvider>
           <Switch>
             <Route exact path="/" component={Login}></Route>
-            <Route path="/chats" component={ChatRoom}></Route>
-            {/* <Route path="/room/:roomName">
-            <Room room={room} name={name} setRoom={setRoom} setName={setName} />
-          </Route> */}
+            <Route path="/chats">
+              <ChatRoom
+                room={room}
+                name={name}
+                setRoom={setRoom}
+                setName={setName}
+              />
+            </Route>
+            <Route path="/room/:roomName">
+              <Room
+                room={room}
+                name={name}
+                setRoom={setRoom}
+                setName={setName}
+              />
+            </Route>
           </Switch>
         </AuthProvider>
       </Router>
