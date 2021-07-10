@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
 
     const usersInThisRoom = users[roomID].filter((id) => id !== socket.id);
 
-    console.log(`socketToName on Join :`, socketToName);
+    // console.log(`socketToName on Join :`, socketToName);
     socket.emit("all users", { users: usersInThisRoom, socketToName });
   });
   socket.on("video change", ({ roomID, userName }) => {
@@ -92,9 +92,9 @@ io.on("connection", (socket) => {
     }
 
     socket.broadcast.emit("user left", socket.id);
-
-    console.log(`socketToName on Left :`, socketToName);
+    // console.log(`socketToName on Left :`, socketToName);
   });
+  // :::::::::::::::::::::::::::::::::::::::::::::::::::
 });
 
 // Establishing Connection from

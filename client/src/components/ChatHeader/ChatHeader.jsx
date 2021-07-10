@@ -3,14 +3,15 @@ import { useHistory } from "react-router-dom";
 
 const ChatHeader = (props) => {
   const history = useHistory();
-  const { title, setName, setRoom, userName } = props;
+  const { title, user, setName, setRoom, room, name } = props;
 
   useEffect(() => {
+    setName(user.displayName);
     setRoom(title);
-    setName(userName);
-  }, []);
+  }, [user, title]);
 
   const joinVideoRoom = () => {
+    console.log(room, name);
     history.push(`/room/${title}`);
   };
 

@@ -1,6 +1,7 @@
 const users = [];
 
 const addUser = ({ id, name, room }) => {
+  console.log(name, room, "In User File");
   name = name.trim().toLowerCase();
   room = room.trim().toLowerCase();
 

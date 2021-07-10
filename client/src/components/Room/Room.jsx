@@ -13,13 +13,16 @@ import VideocamIcon from "@material-ui/icons/Videocam";
 import VideocamOffIcon from "@material-ui/icons/VideocamOff";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import PresentToAllIcon from "@material-ui/icons/PresentToAll";
+import { ChatEngine, ChatList } from "react-chat-engine";
 import { useHistory, Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled, { isStyledComponent } from "styled-components";
 import { CallEnd } from "@material-ui/icons";
-import Chat from "../Chat/Chat";
+import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
+import { ChatFeed } from "react-chat-engine";
 
 const Container = styled.div`
   padding: 20px;
@@ -102,19 +105,22 @@ const Room = ({ room, name, setName, setRoom }) => {
   const [peers, setPeers] = useState([]);
   const [IsVideoOn, setIsVideoOn] = useState(true);
   const [IsMicOn, setIsMicOn] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [IsScreenSharingOn, setIsScreenSharingOn] = useState(false);
   const [NameMap, setNameMap] = useState({});
   const socketRef = useRef();
   const userVideo = useRef();
   const userStream = useRef();
   const peersRef = useRef([]);
-  // const senders = useRef([]);
+  const { user } = useAuth();
+
   const history = useHistory();
   const roomID = room;
   const userName = name;
 
   useEffect(() => {
     socketRef.current = io.connect(ENDPOINT);
+    console.log("Socket in VidRoom ->", socketRef.current);
     navigator.mediaDevices
       .getUserMedia({ video: videoConstraints, audio: true })
       .then((stream) => {
@@ -193,7 +199,7 @@ const Room = ({ room, name, setName, setRoom }) => {
           const item = peersRef.current.find((p) => p.peerID === payload.id);
           item.peer.signal(payload.signal);
         });
-        // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       });
     console.log("UseEffect Executed");
   }, []);
@@ -268,6 +274,51 @@ const Room = ({ room, name, setName, setRoom }) => {
     });
   }
 
+  const getFile = async (url) => {
+    const response = await fetch(url);
+    const data = await response.blob();
+    return new File([data], "userPhoto.jpg", { type: "image/jpeg" });
+  };
+
+  useEffect(() => {
+    if (!user) {
+      history.push("/");
+      return;
+    }
+
+    axios
+      .get("https://api.chatengine.io/users/me", {
+        headers: {
+          "project-id": "2fb6abae-f9ca-41ed-bf8f-c929bfa6c042",
+          "user-name": user.email,
+          "user-secret": user.uid,
+        },
+      })
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(() => {
+        let formdata = new FormData();
+        formdata.append("email", user.email);
+        formdata.append("username", user.email);
+        formdata.append("secret", user.uid);
+
+        getFile(user.photoURL).then((avatar) => {
+          formdata.append("avatar", avatar, avatar.name);
+
+          axios
+            .post("https://api.chatengine.io/users", formdata, {
+              headers: {
+                "private-key": process.env.REACT_APP_CHAT_ENGINE_KEY,
+              },
+            })
+            .then(() => setLoading(false))
+            .catch((error) => console.log(error));
+        });
+      });
+    console.log();
+  }, [user, history]);
+
   return (
     <div>
       <div className={classes.root}>
@@ -336,7 +387,28 @@ const Room = ({ room, name, setName, setRoom }) => {
           </CardActions>
         </Card>
       </div>
-      <Chat />
+      <ChatEngine
+        projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
+        userName={user.email}
+        userSecret={user.uid}
+        renderChatSettings={(chatAppState) => {}}
+        renderChatCard={(chat, index) => {}}
+        renderNewChatForm={(creds) => {}}
+        renderChatFeed={(chatAppState) => {
+          let TempState = chatAppState;
+
+          const { chats } = TempState;
+
+          console.log(TempState);
+
+          for (let key in chats) {
+            if (chats[key].title === room) {
+              TempState.activeChat = key;
+            }
+          }
+          return <ChatFeed {...TempState} />;
+        }}
+      />
       <div>
         {peersRef.current.map((peer) => {
           return <Video key={peer.peerID} peer={peer.peer} />;

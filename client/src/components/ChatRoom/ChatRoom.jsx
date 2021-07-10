@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { ChatEngine, OptionsSettings } from "react-chat-engine";
+import { ChatEngine, OptionsSettings, PeopleSettings } from "react-chat-engine";
 import ChatHeader from "../ChatHeader/ChatHeader";
 import { auth } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
@@ -71,20 +71,23 @@ const ChatRoom = ({ room, name, setName, setRoom }) => {
       </div>
       <ChatEngine
         height="calc(100vh - 66px)"
+        // height = "100%"
         projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
         userName={user.email}
         userSecret={user.uid}
         renderChatHeader={(props) => (
           <ChatHeader
             {...props}
-            userName={user.displayName}
+            user={user}
             room={room}
             name={name}
             setRoom={setRoom}
             setName={setName}
           />
         )}
-        renderOptionsSettings={(creds, chat) => <OptionsSettings />}
+        renderPeopleSettings={(creds, chat, props) => {
+          return <PeopleSettings />;
+        }}
       />
     </div>
   );
