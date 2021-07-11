@@ -473,3 +473,10 @@
 #room {
   background-color: rgb(240, 240, 240) !important;
 }
+
+#other-vid {
+  position: absolute;
+  width: 25%;
+  right: 350px;
+  align-items: center;
+}

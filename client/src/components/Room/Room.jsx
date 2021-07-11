@@ -38,8 +38,8 @@ const Container = styled.div`
 
 const StyledVideo = styled.video`
   margin: auto;
-  height: 35%;
-  width: 35%;
+  height: 100%;
+  width: 100%;
   float: right;
   border-radius: 10px;
 `;
@@ -101,8 +101,8 @@ const videoConstraints = {
 const Room = ({ room, name, setName, setRoom }) => {
   const classes = useStyles();
 
-  const ENDPOINT = "http://localhost:5000";
-  // const ENDPOINT = "https://chat-app-sudhirmts.herokuapp.com/";
+  // const ENDPOINT = "http://localhost:5000";
+  const ENDPOINT = "https://chat-app-sudhirmts.herokuapp.com/";
   const [peers, setPeers] = useState([]);
   const [IsVideoOn, setIsVideoOn] = useState(true);
   const [IsMicOn, setIsMicOn] = useState(true);
@@ -416,9 +416,11 @@ const Room = ({ room, name, setName, setRoom }) => {
           }}
         />
       </div> */}
-      {peersRef.current.map((peer) => {
-        return <Video key={peer.peerID} peer={peer.peer} />;
-      })}
+      <div id="other-vid">
+        {peersRef.current.map((peer) => {
+          return <Video key={peer.peerID} peer={peer.peer} />;
+        })}
+      </div>
     </Container>
   );
 };
