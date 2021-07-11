@@ -1,57 +1,88 @@
 import React, { useEffect, useState } from "react";
-import { Card, Grid, Paper } from "@material-ui/core";
-import styles from "./ChatBox.module.css"; // Import css modules stylesheet as styles
-import { Typography } from "@material-ui/core";
-import io from "socket.io-client";
+import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
+import { useHistory, Link } from "react-router-dom";
+// import ChatFeed from "./ChatFeed";
+import { ChatEngine, ChatList, ChatFeed } from "react-chat-engine";
 
-let socket;
+const ChatBox = ({ room }) => {
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const history = useHistory();
 
-const ChatBox = (props) => {
-  const ENDPOINT = "http://localhost:5000";
-  const { name, room, setName, setRoom } = props;
-  const [users, setUsers] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    socket = io(ENDPOINT);
-
-    socket.emit("join", { name, room }, (error) => {
-      if (error) {
-        alert(error);
-      }
-    });
-  }, [ENDPOINT, room]);
-
-  useEffect(() => {
-    socket.on("message", (message) => {
-      setMessages((messages) => [...messages, message]);
-    });
-
-    socket.on("roomData", ({ users }) => {
-      setUsers(users);
-    });
-    console.log(message, messages);
-  }, [messages]);
-
-  const sendMessage = (event) => {
-    event.preventDefault();
-
-    if (message) {
-      socket.emit("sendMessage", message, () => setMessage(""));
-    }
+  const getFile = async (url) => {
+    const response = await fetch(url);
+    const data = await response.blob();
+    return new File([data], "userPhoto.jpg", { type: "image/jpeg" });
   };
+
+  useEffect(() => {
+    if (!user) {
+      history.push("/");
+      return;
+    }
+
+    axios
+      .get("https://api.chatengine.io/users/me", {
+        headers: {
+          "project-id": "2fb6abae-f9ca-41ed-bf8f-c929bfa6c042",
+          "user-name": user.email,
+          "user-secret": user.uid,
+        },
+      })
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(() => {
+        let formdata = new FormData();
+        formdata.append("email", user.email);
+        formdata.append("username", user.email);
+        formdata.append("secret", user.uid);
+
+        getFile(user.photoURL).then((avatar) => {
+          formdata.append("avatar", avatar, avatar.name);
+
+          axios
+            .post("https://api.chatengine.io/users", formdata, {
+              headers: {
+                "private-key": process.env.REACT_APP_CHAT_ENGINE_KEY,
+              },
+            })
+            .then(() => setLoading(false))
+            .catch((error) => console.log(error));
+        });
+      });
+    console.log();
+  }, [user, history]);
+
   return (
-    <div className={styles.outerContainer}>
-      <div className={styles.container}>
-        <input
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          onKeyPress={(event) =>
-            event.key === "Enter" ? sendMessage(event) : null
-          }
-        />
-      </div>
+    <div class="chat-box">
+      <ChatEngine
+        projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
+        height="100vh"
+        userName={user.email}
+        userSecret={user.uid}
+        renderChatSettings={(chatAppState) => {}}
+        renderChatCard={(chat, index) => {}}
+        renderNewChatForm={(creds) => {}}
+        renderChatFeed={(chatAppState) => {
+          // let TempState = chatAppState;
+
+          // const { chats } = TempState;
+
+          // console.log(TempState);
+
+          // for (let key in chats) {
+          //   if (room !== null) {
+          //     if (chats[key].title === room) {
+          //       TempState.activeChat = key;
+          //     }
+          //   }
+          // }
+          return <ChatFeed {...chatAppState} />;
+        }}
+        // renderChatFeed={(chatAppProps) => <ChatFeed {...chatAppProps} />}
+      />
     </div>
   );
 };

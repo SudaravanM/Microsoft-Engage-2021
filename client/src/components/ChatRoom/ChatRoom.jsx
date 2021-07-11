@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { ChatEngine, OptionsSettings, PeopleSettings } from "react-chat-engine";
+import ChatBox from "../ChatBox/ChatBox";
 import ChatHeader from "../ChatHeader/ChatHeader";
 import { auth } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import ChatFeed from "../ChatBox/ChatFeed";
 
 const ChatRoom = ({ room, name, setName, setRoom }) => {
   const history = useHistory();
@@ -64,31 +66,34 @@ const ChatRoom = ({ room, name, setName, setRoom }) => {
   return (
     <div className="chats-page">
       <div className="nav-bar">
-        <div className="logo-tab">Teams Clone</div>
+        <div className="logo-tab">Microsoft Teams</div>
         <div onClick={handleLogout} className="logout-tab">
           Logout
         </div>
       </div>
-      <ChatEngine
-        height="calc(100vh - 66px)"
-        // height = "100%"
-        projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
-        userName={user.email}
-        userSecret={user.uid}
-        renderChatHeader={(props) => (
-          <ChatHeader
-            {...props}
-            user={user}
-            room={room}
-            name={name}
-            setRoom={setRoom}
-            setName={setName}
-          />
-        )}
-        renderPeopleSettings={(creds, chat, props) => {
-          return <PeopleSettings />;
-        }}
-      />
+      <div>
+        <ChatEngine
+          height="calc(100vh - 65px)"
+          // height=""
+          projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
+          userName={user.email}
+          userSecret={user.uid}
+          renderChatHeader={(props) => (
+            <ChatHeader
+              {...props}
+              user={user}
+              room={room}
+              name={name}
+              setRoom={setRoom}
+              setName={setName}
+            />
+          )}
+          // renderChatFeed={(chatAppProps) => <ChatFeed {...chatAppProps} />}
+          renderPeopleSettings={(creds, chat, props) => {
+            return <PeopleSettings />;
+          }}
+        />
+      </div>
     </div>
   );
 };
