@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { IconButton } from "@material-ui/core";
+import VideoCallIcon from "@material-ui/icons/VideoCall";
 
 const ChatHeader = (props) => {
   const history = useHistory();
@@ -18,9 +20,9 @@ const ChatHeader = (props) => {
   return (
     <div className="ce-chat-title-container">
       <div className="ce-chat-title-text">{title}</div>
-      <button onClick={joinVideoRoom} className="vid-call">
-        Video Call
-      </button>
+      <IconButton onClick={joinVideoRoom} className="vid-call" id="vid-call">
+        <VideoCallIcon fontSize="large" style={{ color: "#3f51b5" }} />
+      </IconButton>
     </div>
   );
 };

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import { useHistory, Link } from "react-router-dom";
-// import ChatFeed from "./ChatFeed";
 import { ChatEngine, ChatList, ChatFeed } from "react-chat-engine";
+import ChatBoxHeader from "./ChatBoxHeader";
 
-const ChatBox = ({ room }) => {
+const ChatBox = (props) => {
+  const { room, name, setRoom, setName } = props;
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const history = useHistory();
@@ -25,7 +26,7 @@ const ChatBox = ({ room }) => {
     axios
       .get("https://api.chatengine.io/users/me", {
         headers: {
-          "project-id": "2fb6abae-f9ca-41ed-bf8f-c929bfa6c042",
+          "project-id": process.env.REACT_APP_CHAT_ENGINE_ID,
           "user-name": user.email,
           "user-secret": user.uid,
         },
@@ -58,30 +59,26 @@ const ChatBox = ({ room }) => {
   return (
     <div class="chat-box">
       <ChatEngine
-        projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
-        height="100vh"
+        projectID={process.env.REACT_APP_CHAT_ENGINE_ID}
+        height="89vh"
         userName={user.email}
         userSecret={user.uid}
         renderChatSettings={(chatAppState) => {}}
         renderChatCard={(chat, index) => {}}
         renderNewChatForm={(creds) => {}}
         renderChatFeed={(chatAppState) => {
-          // let TempState = chatAppState;
-
-          // const { chats } = TempState;
-
-          // console.log(TempState);
-
-          // for (let key in chats) {
-          //   if (room !== null) {
-          //     if (chats[key].title === room) {
-          //       TempState.activeChat = key;
-          //     }
-          //   }
-          // }
           return <ChatFeed {...chatAppState} />;
         }}
-        // renderChatFeed={(chatAppProps) => <ChatFeed {...chatAppProps} />}
+        renderChatHeader={(props) => (
+          <ChatBoxHeader
+            {...props}
+            user={user}
+            room={room}
+            name={name}
+            setRoom={setRoom}
+            setName={setName}
+          />
+        )}
       />
     </div>
   );

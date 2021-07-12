@@ -24,6 +24,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import { useHistory, Link } from "react-router-dom";
 
+import TopBar from "../TopBar/TopBar";
+
 import { ChatFeed } from "react-chat-engine";
 import { ChatEngine, ChatList } from "react-chat-engine";
 
@@ -37,11 +39,11 @@ const Container = styled.div`
 // margin: auto;
 
 const StyledVideo = styled.video`
-  margin: auto;
+  margin: 25px;
   height: 100%;
   width: 100%;
   float: right;
-  border-radius: 10px;
+  border-radius: 15px;
 `;
 
 const useStyles = makeStyles(() => ({
@@ -109,6 +111,7 @@ const Room = ({ room, name, setName, setRoom }) => {
   const [IsScreenSharingOn, setIsScreenSharingOn] = useState(false);
   const [NameMap, setNameMap] = useState({});
   const [loading, setLoading] = useState(true);
+  const [ChatButton, setChatButton] = useState(false);
   const { user } = useAuth();
   const history = useHistory();
   const socketRef = useRef();
@@ -321,75 +324,77 @@ const Room = ({ room, name, setName, setRoom }) => {
   }, [user, history]);
 
   return (
-    <Container className={classes.root} id="room">
-      <div id="my-card">
-        <Card className={classes.myCard}>
-          <CardContent>
-            <AppBar position="static">
-              <Typography className={classes.myName}>{name}</Typography>
-            </AppBar>
-            <video
-              className={classes.myVideo}
-              height="100%"
-              width="100%"
-              muted
-              ref={userVideo}
-              autoPlay
-              playsInline
-            />
-          </CardContent>
-          <CardActions>
-            <IconButton
-              className={classes.buttons}
-              onClick={() => {
-                userVideo.current.srcObject.getAudioTracks()[0].enabled =
-                  !userVideo.current.srcObject.getAudioTracks()[0].enabled;
-                setIsMicOn(!IsMicOn);
-              }}
-            >
-              {IsMicOn ? (
-                <MicIcon fontSize="large" style={{ color: "green" }} />
-              ) : (
-                <MicOffIcon fontSize="large" style={{ color: "red" }} />
-              )}
-            </IconButton>
-            <IconButton
-              className={classes.buttons}
-              onClick={() => {
-                socketRef.current.destroy();
-                window.location.assign(window.location.origin);
-              }}
-            >
-              <CallEnd fontSize="large" style={{ color: "red" }} />
-            </IconButton>
-            <IconButton
-              className={classes.buttons}
-              onClick={() => {
-                userVideo.current.srcObject.getVideoTracks()[0].enabled =
-                  !userVideo.current.srcObject.getVideoTracks()[0].enabled;
-                setIsVideoOn(!IsVideoOn);
-              }}
-            >
-              {IsVideoOn ? (
-                <VideocamIcon fontSize="large" style={{ color: "green" }} />
-              ) : (
-                <VideocamOffIcon fontSize="large" style={{ color: "red" }} />
-              )}
-            </IconButton>
-            {!IsScreenSharingOn ? (
-              <IconButton className={classes.buttons} onClick={shareScreen}>
-                <PresentToAllIcon fontSize="large" style={{ color: "red" }} />
+    <div>
+      <TopBar />
+      <Container className={classes.root} id="room">
+        <div id="my-card">
+          <Card className={classes.myCard}>
+            <CardContent>
+              <AppBar position="static">
+                <Typography className={classes.myName}>{name}</Typography>
+              </AppBar>
+              <video
+                className={classes.myVideo}
+                height="100%"
+                width="100%"
+                muted
+                ref={userVideo}
+                autoPlay
+                playsInline
+              />
+            </CardContent>
+            <CardActions>
+              <IconButton
+                className={classes.buttons}
+                onClick={() => {
+                  userVideo.current.srcObject.getAudioTracks()[0].enabled =
+                    !userVideo.current.srcObject.getAudioTracks()[0].enabled;
+                  setIsMicOn(!IsMicOn);
+                }}
+              >
+                {IsMicOn ? (
+                  <MicIcon fontSize="large" style={{ color: "green" }} />
+                ) : (
+                  <MicOffIcon fontSize="large" style={{ color: "red" }} />
+                )}
               </IconButton>
-            ) : (
-              <IconButton className={classes.buttons} disabled>
-                <PresentToAllIcon fontSize="large" />
+              <IconButton
+                className={classes.buttons}
+                onClick={() => {
+                  socketRef.current.destroy();
+                  window.location.assign(window.location.origin);
+                }}
+              >
+                <CallEnd fontSize="large" style={{ color: "red" }} />
               </IconButton>
-            )}
-          </CardActions>
-        </Card>
-      </div>
-      <ChatBox room={room} />
-      {/* <div class="chat-box">
+              <IconButton
+                className={classes.buttons}
+                onClick={() => {
+                  userVideo.current.srcObject.getVideoTracks()[0].enabled =
+                    !userVideo.current.srcObject.getVideoTracks()[0].enabled;
+                  setIsVideoOn(!IsVideoOn);
+                }}
+              >
+                {IsVideoOn ? (
+                  <VideocamIcon fontSize="large" style={{ color: "green" }} />
+                ) : (
+                  <VideocamOffIcon fontSize="large" style={{ color: "red" }} />
+                )}
+              </IconButton>
+              {!IsScreenSharingOn ? (
+                <IconButton className={classes.buttons} onClick={shareScreen}>
+                  <PresentToAllIcon fontSize="large" style={{ color: "red" }} />
+                </IconButton>
+              ) : (
+                <IconButton className={classes.buttons} disabled>
+                  <PresentToAllIcon fontSize="large" />
+                </IconButton>
+              )}
+            </CardActions>
+          </Card>
+        </div>
+        <ChatBox room={room} name={name} setRoom={setRoom} setName={setName} />
+        {/* <div class="chat-box">
         <ChatEngine
           projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
           height="100vh"
@@ -416,12 +421,13 @@ const Room = ({ room, name, setName, setRoom }) => {
           }}
         />
       </div> */}
-      <div id="other-vid">
-        {peersRef.current.map((peer) => {
-          return <Video key={peer.peerID} peer={peer.peer} />;
-        })}
-      </div>
-    </Container>
+        <div id="other-vid">
+          {peersRef.current.map((peer) => {
+            return <Video key={peer.peerID} peer={peer.peer} />;
+          })}
+        </div>
+      </Container>
+    </div>
   );
 };
 // peersRef.current

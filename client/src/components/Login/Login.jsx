@@ -1,7 +1,7 @@
 // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 import React from "react";
 
-import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
+import { GoogleCircleFilled, FacebookOutlined } from "@ant-design/icons";
 
 import firebase from "firebase/app";
 
@@ -11,25 +11,21 @@ export default function Login() {
   return (
     <div id="login-page">
       <div id="login-card">
-        <h2>Welcome to Teams Clone!!!</h2>
-
+        <h1>
+          <text id="teams">Microsoft Teams</text>
+        </h1>
+        <h2>
+          Meet, chat, call,
+          <br /> in just one place.
+        </h2>
+        <br />
         <div
           className="login-button google"
           onClick={() =>
             auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
           }
         >
-          <GoogleOutlined /> Sign In with Google
-        </div>
-
-        <br />
-        <br />
-
-        <div
-          className="login-button facebook"
-          //   onClick={() => auth.signInWithRedirect(new firebase.auth.FacebookAuthProvider()) }
-        >
-          <FacebookOutlined /> Sign In with Facebook
+          <GoogleCircleFilled /> Sign In with Google
         </div>
       </div>
     </div>

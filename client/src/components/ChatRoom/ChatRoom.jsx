@@ -6,7 +6,7 @@ import ChatHeader from "../ChatHeader/ChatHeader";
 import { auth } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
-import ChatFeed from "../ChatBox/ChatFeed";
+import { ExitToApp } from "@material-ui/icons";
 
 const ChatRoom = ({ room, name, setName, setRoom }) => {
   const history = useHistory();
@@ -32,7 +32,7 @@ const ChatRoom = ({ room, name, setName, setRoom }) => {
     axios
       .get("https://api.chatengine.io/users/me", {
         headers: {
-          "project-id": "2fb6abae-f9ca-41ed-bf8f-c929bfa6c042",
+          "project-id": process.env.REACT_APP_CHAT_ENGINE_ID,
           "user-name": user.email,
           "user-secret": user.uid,
         },
@@ -66,16 +66,17 @@ const ChatRoom = ({ room, name, setName, setRoom }) => {
   return (
     <div className="chats-page">
       <div className="nav-bar">
+        <img src="https://img.icons8.com/fluent/50/000000/microsoft-teams-2019.png" />
         <div className="logo-tab">Microsoft Teams</div>
         <div onClick={handleLogout} className="logout-tab">
-          Logout
+          <ExitToApp />
         </div>
       </div>
       <div>
         <ChatEngine
           height="calc(100vh - 65px)"
           // height=""
-          projectID="2fb6abae-f9ca-41ed-bf8f-c929bfa6c042"
+          projectID={process.env.REACT_APP_CHAT_ENGINE_ID}
           userName={user.email}
           userSecret={user.uid}
           renderChatHeader={(props) => (
