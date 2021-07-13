@@ -1,5 +1,5 @@
 # Microsoft-Engage-2021
- This Repository contains all the code related to the Teams Clone app I made for the Microsoft Engage 2021. 
+ This Repository contains all the code related to the Teams Clone App from me for the Microsoft Engage 2021. 
  
  ## Techstack:
     - NodeJS for Backend.
@@ -10,15 +10,15 @@
     - Frontend deployed in Netlify.
   
  ## Functionalities:
-  #### Google Authentication:
+  ### Google Authentication:
       - This provides security for the user and facilitates the user to get back is past messages from the database.
-  #### Chat Room:
+  ### Chat Room:
       - Can create multiple chat rooms.
       - Can add new people who are users of the Clone App.
       - Can delete a particular chat room.
       - Can send media files to the user.
       - Join Video call with the users in the room.
-  #### Video Call Room:
+  ### Video Call Room:
       - Mic Turn On/Off.
       - Video Turn On/Off.
       - Screen Sharing Option.
